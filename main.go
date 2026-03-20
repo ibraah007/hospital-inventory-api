@@ -2,36 +2,15 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"github.com/ibraah007/hospital-inventory-api/models" 
+	"github.com/ibraah007/hospital-inventory-api/handlers"
 )
-
-var inventory = []models.Item{
-	{ID: "1", Name: "Paracetamol", Quantity: 500},
-	{ID: "2", Name: "Surgical Masks", Quantity: 2000},
-}
 
 func main() {
 	r := gin.Default()
 
-	
-	r.GET("/inventory", func(c *gin.Context) {
-		c.JSON(http.StatusOK, inventory)
-	})
-
-// to handle post 
-	r.POST("/inventory", func(c *gin.Context) {
-		var newItem models.Item
-
-		if err := c.ShouldBindJSON(&newItem); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-
-
-		inventory = append(inventory, newItem)
-		c.JSON(http.StatusCreated, newItem)
-	})
+	// The Manager (Gin) now points to the Specialists (Handlers)
+	r.GET("/inventory", handlers.GetInventory)
+	r.POST("/inventory", handlers.AddItem)
 
 	r.Run(":8080")
 }
