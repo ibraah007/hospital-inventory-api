@@ -1,20 +1,15 @@
-package main
-
-import (
-	"github.com/gin-gonic/gin"
-	"github.com/ibraah007/hospital-inventory-api/handlers"
-)
-
 func main() {
-	// Initialize the Manager (Gin)
-	r := gin.Default()
+    database.InitDB() // This opens the filing cabinet
 
-	// The Switchboard: URL + Method -> Specialist Function
-	r.GET("/inventory", handlers.GetInventory)      // See all
-	r.POST("/inventory", handlers.AddItem)          // Add new
-	r.PUT("/inventory/:id", handlers.UpdateItem)    // Change existing
-	r.DELETE("/inventory/:id", handlers.DeleteItem) // Remove
+    r := gin.Default()
 
-	// Start the server
-	r.Run(":8080")
+    // Pharmacy Department
+    r.GET("/inventory", handlers.GetInventory)
+    r.POST("/inventory", handlers.AddItem)
+
+    // HR Department (Make sure these two lines are there!)
+    r.GET("/staff", handlers.GetStaff)
+    r.POST("/staff", handlers.AddStaff)
+
+    r.Run(":8080")
 }

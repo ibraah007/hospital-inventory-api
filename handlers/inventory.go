@@ -3,62 +3,50 @@ package handlers
 import (
 	"net/http"
 	"github.com/gin-gonic/gin"
+	"github.com/ibraah007/hospital-inventory-api/database"
 	"github.com/ibraah007/hospital-inventory-api/models"
 )
 
-// The "Shelf" - Current stock in memory
-var inventory = []models.Item{
-	{ID: "1", Name: "Paracetamol", Quantity: 500},
-	{ID: "2", Name: "Surgical Masks", Quantity: 2000},
-}
-
-// GetInventory handles GET /inventory (Read All)
+// GetInventory fetches everything from the SQLITE database
 func GetInventory(c *gin.Context) {
-	c.JSON(http.StatusOK, inventory)
+	var items []models.Item
+	database.DB.Find(&items)
+	c.JSON(http.StatusOK, items)
 }
 
-// AddItem handles POST /inventory (Create)
+// AddItem saves a new item to the SQLITE database
 func AddItem(c *gin.Context) {
 	var newItem models.Item
 	if err := c.ShouldBindJSON(&newItem); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	inventory = append(inventory, newItem)
+	database.DB.Create(&newItem)
 	c.JSON(http.StatusCreated, newItem)
 }
 
-// UpdateItem handles PUT /inventory/:id (Update)
+// UpdateItem updates an item in the DB by ID
 func UpdateItem(c *gin.Context) {
 	id := c.Param("id")
-	var updatedData models.Item
+	var item models.Item
 
-	// Validate the incoming JSON
-	if err := c.ShouldBindJSON(&updatedData); err != nil {
+	if err := database.DB.First(&item, "id = ?", id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Item not found"})
+		return
+	}
+
+	if err := c.ShouldBindJSON(&item); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Find the item and swap it with the new data
-	for i, item := range inventory {
-		if item.ID == id {
-			inventory[i] = updatedData
-			c.JSON(http.StatusOK, inventory[i])
-			return
-		}
-	}
-	c.JSON(http.StatusNotFound, gin.H{"error": "Item not found"})
+	database.DB.Save(&item)
+	c.JSON(http.StatusOK, item)
 }
 
-// DeleteItem handles DELETE /inventory/:id (Delete)
+// DeleteItem removes an item from the DB by ID
 func DeleteItem(c *gin.Context) {
 	id := c.Param("id")
-	for i, item := range inventory {
-		if item.ID == id {
-			inventory = append(inventory[:i], inventory[i+1:]...)
-			c.JSON(http.StatusOK, gin.H{"message": "Item deleted successfully"})
-			return
-		}
-	}
-	c.JSON(http.StatusNotFound, gin.H{"error": "Item not found"})
+	database.DB.Delete(&models.Item{}, "id = ?", id)
+	c.JSON(http.StatusOK, gin.H{"message": "Item deleted from database"})
 }
