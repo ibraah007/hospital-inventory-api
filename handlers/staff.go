@@ -33,3 +33,25 @@ func AddStaff(c *gin.Context) {
 	database.DB.Create(&newStaff)
 	c.JSON(http.StatusCreated, newStaff)
 }
+
+// SearchStaff handles GET /staff/search?name=...
+func SearchStaff(c *gin.Context) {
+	name := c.Query("name") // This grabs the name from the URL
+	var staff []models.Staff
+
+	if name == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Please provide a name to search"})
+		return
+	}
+
+	// Search the database where name LIKE the input
+	// The "%" symbols allow for partial matches (e.g., "Ibra" finds "Ibrahim")
+	result := database.DB.Where("name LIKE ?", "%"+name+"%").Find(&staff)
+
+	if result.RowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"message": "No doctor found with that name"})
+		return
+	}
+
+	c.JSON(http.StatusOK, staff)
+}

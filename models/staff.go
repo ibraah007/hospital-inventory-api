@@ -1,8 +1,11 @@
 package models
 
+import "time"
+
 type Staff struct {
-    ID       string `json:"id"`
-    Name     string `json:"name"`
-    Role     string `json:"role"`     // e.g., Doctor, Nurse, Surgeon
-    Shift    string `json:"shift"`    // e.g., Day, Night
+	ID        string    `json:"id" gorm:"primaryKey"`
+	Name      string    `json:"name"`
+	Role      string    `json:"role"`
+	Shift     string    `json:"shift"`
+	CreatedAt time.Time `json:"created_at"` // Automatically set by the DB
 }
