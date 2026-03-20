@@ -4,11 +4,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	
-	// This points to the folder you just created
+	
 	"github.com/ibraah007/hospital-inventory-api/models" 
 )
 
-// Now we use models.Item instead of just Item
+/
 var inventory = []models.Item{
 	{ID: "1", Name: "Paracetamol", Quantity: 500},
 	{ID: "2", Name: "Surgical Masks", Quantity: 2000},
