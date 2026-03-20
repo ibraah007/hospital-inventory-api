@@ -8,9 +8,15 @@ import (
 func main() {
 	r := gin.Default()
 
-	// The Manager (Gin) now points to the Specialists (Handlers)
+	// Route 1: See everything
 	r.GET("/inventory", handlers.GetInventory)
+	
+	// Route 2: Add something new
 	r.POST("/inventory", handlers.AddItem)
+	
+	// Route 3: Delete something specific using its ID
+	r.DELETE("/inventory/:id", handlers.DeleteItem)
 
+	// Start the server on port 8080
 	r.Run(":8080")
 }
