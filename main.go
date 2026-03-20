@@ -6,17 +6,15 @@ import (
 )
 
 func main() {
+	// Initialize the Manager (Gin)
 	r := gin.Default()
 
-	// Route 1: See everything
-	r.GET("/inventory", handlers.GetInventory)
-	
-	// Route 2: Add something new
-	r.POST("/inventory", handlers.AddItem)
-	
-	// Route 3: Delete something specific using its ID
-	r.DELETE("/inventory/:id", handlers.DeleteItem)
+	// The Switchboard: URL + Method -> Specialist Function
+	r.GET("/inventory", handlers.GetInventory)      // See all
+	r.POST("/inventory", handlers.AddItem)          // Add new
+	r.PUT("/inventory/:id", handlers.UpdateItem)    // Change existing
+	r.DELETE("/inventory/:id", handlers.DeleteItem) // Remove
 
-	// Start the server on port 8080
+	// Start the server
 	r.Run(":8080")
 }
