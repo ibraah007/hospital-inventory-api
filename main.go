@@ -14,22 +14,21 @@ var inventory = []models.Item{
 func main() {
 	r := gin.Default()
 
-	// 1. View all items
+	
 	r.GET("/inventory", func(c *gin.Context) {
 		c.JSON(http.StatusOK, inventory)
 	})
 
-	// 2. Add a new item (The Loading Dock)
+// to handle post 
 	r.POST("/inventory", func(c *gin.Context) {
 		var newItem models.Item
 
-		// Call BindJSON to bind the received JSON to newItem
 		if err := c.ShouldBindJSON(&newItem); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
 
-		// Add the new item to the slice
+
 		inventory = append(inventory, newItem)
 		c.JSON(http.StatusCreated, newItem)
 	})
