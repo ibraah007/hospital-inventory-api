@@ -7,51 +7,31 @@ import (
 	"github.com/ibraah007/hospital-inventory-api/models"
 )
 
-// GetStaff handles GET /staff (Fetches everyone from the DB)
 func GetStaff(c *gin.Context) {
 	var staff []models.Staff
-	
-	// .Find() is a GORM command that says: "Get everything in the Staff table"
-	if err := database.DB.Find(&staff).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not fetch staff"})
-		return
-	}
-	
+	database.DB.Find(&staff)
 	c.JSON(http.StatusOK, staff)
 }
 
-// AddStaff handles POST /staff (Saves a new person to the DB)
-func AddStaff(c *gin.Context) {
-	var newStaff models.Staff
+func SearchStaff(c *gin.Context) {
+	query := c.Query("name")
+	var staff []models.Staff
+	database.DB.Where("name LIKE ? OR role LIKE ? OR shift LIKE ?", "%"+query+"%", "%"+query+"%", "%"+query+"%").Find(&staff)
+	c.JSON(http.StatusOK, staff)
+}
 
-	if err := c.ShouldBindJSON(&newStaff); err != nil {
+func AddStaff(c *gin.Context) {
+	var input models.Staff
+	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-
-	// .Create() is a GORM command that saves the data to your hard drive
-	database.DB.Create(&newStaff)
-	c.JSON(http.StatusCreated, newStaff)
+	database.DB.Create(&input)
+	c.JSON(http.StatusOK, input)
 }
 
-// SearchStaff handles GET /staff/search?name=...
-func SearchStaff(c *gin.Context) {
-	name := c.Query("name") // This grabs the name from the URL
-	var staff []models.Staff
-
-	if name == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Please provide a name to search"})
-		return
-	}
-
-	// Search the database where name LIKE the input
-	// The "%" symbols allow for partial matches (e.g., "Ibra" finds "Ibrahim")
-	result := database.DB.Where("name LIKE ?", "%"+name+"%").Find(&staff)
-
-	if result.RowsAffected == 0 {
-		c.JSON(http.StatusNotFound, gin.H{"message": "No doctor found with that name"})
-		return
-	}
-
-	c.JSON(http.StatusOK, staff)
+func DeleteStaff(c *gin.Context) {
+	id := c.Param("id")
+	database.DB.Delete(&models.Staff{}, "id = ?", id)
+	c.JSON(http.StatusOK, gin.H{"message": "Staff removed"})
 }
