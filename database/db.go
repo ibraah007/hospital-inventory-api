@@ -12,8 +12,9 @@ func InitDB() {
 	var err error
 	DB, err = gorm.Open(sqlite.Open("hospital.db"), &gorm.Config{})
 	if err != nil {
-		panic("Failed to connect to database!")
+		panic("Failed to connect to database")
 	}
-	// AutoMigrate creates/updates tables based on your models
-	DB.AutoMigrate(&models.Staff{}, &models.Inventory{})
+
+	// Fix line 18 here:
+	DB.AutoMigrate(&models.Staff{}, &models.Item{})
 }
